@@ -11,6 +11,7 @@ library LiquidityAmounts {
     /// @param x The uint258 to be downcasted
     /// @return y The passed value, downcasted to uint128
     function toUint128(uint256 x) private pure returns (uint128 y) {
+        // 这个require是防止溢出，如果溢出，就revert
         require((y = uint128(x)) == x);
     }
 
@@ -26,6 +27,8 @@ library LiquidityAmounts {
         uint256 amount0
     ) internal pure returns (uint128 liquidity) {
         if (sqrtRatioAX96 > sqrtRatioBX96) (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
+        // 根据推导公式，流动性的值为Δx乘上sqrtRatioAX96，再乘sqrtRatioBX96，然后除以sqrtRatioBX96 - sqrtRatioAX96
+        // 第一步除以FixedPoint96.Q96是因为前面两个定点数都左移了96位，所以相乘之后需要右移96位
         uint256 intermediate = FullMath.mulDiv(sqrtRatioAX96, sqrtRatioBX96, FixedPoint96.Q96);
         return toUint128(FullMath.mulDiv(amount0, intermediate, sqrtRatioBX96 - sqrtRatioAX96));
     }
@@ -42,6 +45,9 @@ library LiquidityAmounts {
         uint256 amount1
     ) internal pure returns (uint128 liquidity) {
         if (sqrtRatioAX96 > sqrtRatioBX96) (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
+        // 通过这个公式，可以很好的反映流动性和tick，以及P的关系
+        // 也就是当tick距离不变，投入的token越多，流动性越大。反之，如果token不变，那么做市的距离越小，那么流动性就越大
+        // 只不过距离越小，真实价格在此间距的机会就越小，那么获得手续费的机会也就越小
         return toUint128(FullMath.mulDiv(amount1, FixedPoint96.Q96, sqrtRatioBX96 - sqrtRatioAX96));
     }
 

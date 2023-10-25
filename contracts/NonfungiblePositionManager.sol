@@ -125,6 +125,7 @@ contract NonfungiblePositionManager is
     }
 
     /// @inheritdoc INonfungiblePositionManager
+    // 将MintParams这个Struct写在接口合约中
     function mint(MintParams calldata params)
         external
         payable

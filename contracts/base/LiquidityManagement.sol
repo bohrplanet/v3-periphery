@@ -60,6 +60,7 @@ abstract contract LiquidityManagement is IUniswapV3MintCallback, PeripheryImmuta
         PoolAddress.PoolKey memory poolKey =
             PoolAddress.PoolKey({token0: params.token0, token1: params.token1, fee: params.fee});
 
+        // 池子建完之后，不是存在了getPool中了吗？直接取就好了，为什么还要计算出池子地址呢？是因为那种方法更消耗gas吗？
         pool = IUniswapV3Pool(PoolAddress.computeAddress(factory, poolKey));
 
         // compute the liquidity amount
@@ -68,6 +69,7 @@ abstract contract LiquidityManagement is IUniswapV3MintCallback, PeripheryImmuta
             uint160 sqrtRatioAX96 = TickMath.getSqrtRatioAtTick(params.tickLower);
             uint160 sqrtRatioBX96 = TickMath.getSqrtRatioAtTick(params.tickUpper);
 
+            // 计算出添加的token可以代表的流动性的多少
             liquidity = LiquidityAmounts.getLiquidityForAmounts(
                 sqrtPriceX96,
                 sqrtRatioAX96,
